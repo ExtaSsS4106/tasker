@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
-from .serializers import RegisterSerializer, UserSerializer
+from .serializers import *
 from .models import *
 from django.shortcuts import render, redirect, get_object_or_404
 from datetime import timedelta
@@ -12,6 +12,9 @@ from django.db.models import Count, Q
 import json
 from django.urls import reverse
 import os
+
+from .models import *
+
 # Регистрация пользователя
 class ErrorResponse(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -87,34 +90,42 @@ class LogoutView(APIView):
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
-class AllUsers(APIView):
-    permission_classes = (permissions.AllowAny,)
-    def get(self, request):
-        profiles_ = profiles.objects.all().order_by('-id')
-        response = []
-        for p in profiles_:
-            response.append({
-                                "profile_id": p.id,
-                                "username": p.user.username,
-                                "user_id": p.user.id,
-                            })
-        return Response(response)
-    
-    def post(self, request):
-        data = json.loads(request.body)
-        query = data.get('query')
-        
-        if query:
-            profiles_ = profiles.objects.filter(user__username__icontains=query).order_by('-id')
-        else:
-            return Response({"error": "Not found"}, status=404)
-        response = []
-        for p in profiles_:
-            response.append({
-                                "profile_id": p.id,
-                                "username": p.user.username,
-                                "user_id": p.user.id,
-                            })
-        return Response(response)
-    
 
+
+class TaskListView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        tasks = Task.objects.filter(user=request.user)
+        task_list = [task.to_dict() for task in tasks]
+        return Response(task_list)
+
+class TaskActionView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id, user=request.user)
+        action = request.data.get('action')
+
+        if action == 'complete':
+            task.completed = True
+            task.save()
+            return Response({"message": "Task marked as completed."})
+        elif action == 'delete':
+            task.delete()
+            return Response({"message": "Task deleted."})
+        else:
+            return Response({"error": "Invalid action."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id, user=request.user)
+        serializer = TaskSerializer(task, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id, user=request.user)
+        task.delete()
+        return Response({"message": "Task deleted."}, status=status.HTTP_204_NO_CONTENT)

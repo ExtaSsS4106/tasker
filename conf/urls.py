@@ -14,11 +14,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# backend/urls.py
+# conf/urls.py
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from api.views import RegisterView, ProfileView, LogoutView
+from django.conf import settings
 """
     POST /api/login/
     Content-Type: application/json
@@ -45,7 +47,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     # JWT эндпоинты (встроенные в simplejwt)
-    path('', include('web.urls')),
+    #path('', include('web.urls')),
     path('', include("django.contrib.auth.urls")),
     
     path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -53,4 +55,4 @@ urlpatterns = [
     
     path('api/', include('api.urls'))
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

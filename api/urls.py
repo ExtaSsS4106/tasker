@@ -1,10 +1,7 @@
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path
-from .views import (
-    RegisterView, ProfileView, LogoutView,
-    AllUsers,AmIsuperUser, ProfileInfo, ErrorResponse
-)
+from .views import *
 urlpatterns = [
     path('', ErrorResponse.as_view(), name='error-response'),
     
@@ -17,7 +14,7 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     
     path('logout/', LogoutView.as_view(), name='logout'),
-    
-    path('all-users/', AllUsers.as_view(), name='all-users'),
+    path('tasks/', TaskListView.as_view(), name='task-list'),
+    path('tasks/<int:task_id>/', TaskActionView.as_view(), name='task-action'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
