@@ -1204,6 +1204,9 @@ function exportTasks(format) {
 /* ======================= Инициализация ======================= */
 
 async function initialize() {
+    if (!window.bootstrap) {
+        console.error('[Tasker] window.bootstrap не определён — модалки и уведомления не работают.');
+    }
     const apiReachable = await detectApiBase();
 
     try {

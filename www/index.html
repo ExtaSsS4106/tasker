@@ -47,9 +47,13 @@
         </div>
     </div>
 
+    <!-- Классические скрипты выполняются до deferred-модулей:
+         nunjucks нужен для templates.js, bootstrap — для модалок/тостов.
+         Bootstrap подключаем не-модульным скриптом: в модульном виде Vite
+         оборачивает его UMD в CommonJS и window.bootstrap не появляется. -->
     <script src="nunjucks.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
     <script type="module" src="templates.js"></script>
-    <script type="module" src="static/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="./app.js"></script>
     <script type="module" src="static/custom/js/app.js"></script>
 </body>
