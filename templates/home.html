@@ -1,6 +1,74 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Привет, {{ user.first_name or user.username }}!</h1>
-<p>{{ user.email }}</p>
+<div class="row g-4">
+
+    {# Приветствие #}
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h3 mb-1">
+                    {{ user.first_name or user.username }}
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    {# Заголовок списка + кнопка #}
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 mb-0">Мои задачи</h2>
+            <button class="btn btn-primary btn-sm" id="btnNewTask">
+                <i class="bi bi-plus-lg me-1"></i>Новая задача
+            </button>
+        </div>
+
+        {% if tasks and tasks.length %}
+            <div class="list-group shadow-sm">
+                {% for task in tasks %}
+                    <div class="list-group-item d-flex align-items-start gap-3 py-3"
+                         data-task-id="{{ task.id }}">
+
+                        <input class="form-check-input mt-1 task-toggle" type="checkbox"
+                               {% if task.completed %}checked{% endif %}
+                               aria-label="Отметить выполненной">
+
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold {% if task.completed %}text-decoration-line-through text-body-secondary{% endif %}">
+                                {{ task.title }}
+                            </div>
+
+                            {% if task.description %}
+                                <div class="small text-body-secondary">{{ task.description }}</div>
+                            {% endif %}
+
+                            {% if task.due_date %}
+                                <div class="small text-body-secondary mt-1">
+                                    <i class="bi bi-clock me-1"></i>{{ task.due_date }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if task.img %}
+                            <img src="{{ task.img }}" alt="" class="rounded"
+                                 style="width:48px;height:48px;object-fit:cover;">
+                        {% endif %}
+
+                        <button class="btn btn-sm btn-outline-danger task-delete" title="Удалить">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center text-body-secondary py-5">
+                    <i class="bi bi-inbox display-6 d-block mb-3"></i>
+                    Пока нет задач. Создай первую!
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
 {% endblock %}

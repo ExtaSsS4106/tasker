@@ -348,11 +348,75 @@ var colno = 3;
 var output = "";
 try {
 var frame = frame.push(true);
-output += "\n<h1>Привет, ";
+output += "\n<div class=\"row g-4\">\n\n    ";
+output += "\n    <div class=\"col-12\">\n        <div class=\"card border-0 shadow-sm\">\n            <div class=\"card-body p-4\">\n                <h1 class=\"h3 mb-1\">\n                    ";
 output += runtime.suppressValue(runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"first_name") || runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"username"), env.opts.autoescape);
-output += "!</h1>\n<p>";
-output += runtime.suppressValue(runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"email"), env.opts.autoescape);
-output += "</p>\n";
+output += "\n                </h1>\n            </div>\n        </div>\n    </div>\n\n    ";
+output += "\n    <div class=\"col-12\">\n        <div class=\"d-flex justify-content-between align-items-center mb-3\">\n            <h2 class=\"h5 mb-0\">Мои задачи</h2>\n            <button class=\"btn btn-primary btn-sm\" id=\"btnNewTask\">\n                <i class=\"bi bi-plus-lg me-1\"></i>Новая задача\n            </button>\n        </div>\n\n        ";
+if(runtime.contextOrFrameLookup(context, frame, "tasks") && runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "tasks")),"length")) {
+output += "\n            <div class=\"list-group shadow-sm\">\n                ";
+frame = frame.push();
+var t_8 = runtime.contextOrFrameLookup(context, frame, "tasks");
+if(t_8) {t_8 = runtime.fromIterator(t_8);
+var t_7 = t_8.length;
+for(var t_6=0; t_6 < t_8.length; t_6++) {
+var t_9 = t_8[t_6];
+frame.set("task", t_9);
+frame.set("loop.index", t_6 + 1);
+frame.set("loop.index0", t_6);
+frame.set("loop.revindex", t_7 - t_6);
+frame.set("loop.revindex0", t_7 - t_6 - 1);
+frame.set("loop.first", t_6 === 0);
+frame.set("loop.last", t_6 === t_7 - 1);
+frame.set("loop.length", t_7);
+output += "\n                    <div class=\"list-group-item d-flex align-items-start gap-3 py-3\"\n                         data-task-id=\"";
+output += runtime.suppressValue(runtime.memberLookup((t_9),"id"), env.opts.autoescape);
+output += "\">\n\n                        <input class=\"form-check-input mt-1 task-toggle\" type=\"checkbox\"\n                               ";
+if(runtime.memberLookup((t_9),"completed")) {
+output += "checked";
+;
+}
+output += "\n                               aria-label=\"Отметить выполненной\">\n\n                        <div class=\"flex-grow-1\">\n                            <div class=\"fw-semibold ";
+if(runtime.memberLookup((t_9),"completed")) {
+output += "text-decoration-line-through text-body-secondary";
+;
+}
+output += "\">\n                                ";
+output += runtime.suppressValue(runtime.memberLookup((t_9),"title"), env.opts.autoescape);
+output += "\n                            </div>\n\n                            ";
+if(runtime.memberLookup((t_9),"description")) {
+output += "\n                                <div class=\"small text-body-secondary\">";
+output += runtime.suppressValue(runtime.memberLookup((t_9),"description"), env.opts.autoescape);
+output += "</div>\n                            ";
+;
+}
+output += "\n\n                            ";
+if(runtime.memberLookup((t_9),"due_date")) {
+output += "\n                                <div class=\"small text-body-secondary mt-1\">\n                                    <i class=\"bi bi-clock me-1\"></i>";
+output += runtime.suppressValue(runtime.memberLookup((t_9),"due_date"), env.opts.autoescape);
+output += "\n                                </div>\n                            ";
+;
+}
+output += "\n                        </div>\n\n                        ";
+if(runtime.memberLookup((t_9),"img")) {
+output += "\n                            <img src=\"";
+output += runtime.suppressValue(runtime.memberLookup((t_9),"img"), env.opts.autoescape);
+output += "\" alt=\"\" class=\"rounded\"\n                                 style=\"width:48px;height:48px;object-fit:cover;\">\n                        ";
+;
+}
+output += "\n\n                        <button class=\"btn btn-sm btn-outline-danger task-delete\" title=\"Удалить\">\n                            <i class=\"bi bi-trash\"></i>\n                        </button>\n                    </div>\n                ";
+;
+}
+}
+frame = frame.pop();
+output += "\n            </div>\n        ";
+;
+}
+else {
+output += "\n            <div class=\"card border-0 shadow-sm\">\n                <div class=\"card-body text-center text-body-secondary py-5\">\n                    <i class=\"bi bi-inbox display-6 d-block mb-3\"></i>\n                    Пока нет задач. Создай первую!\n                </div>\n            </div>\n        ";
+;
+}
+output += "\n    </div>\n\n</div>\n";
 cb(null, output);
 ;
 } catch (e) {
@@ -374,7 +438,13 @@ var colno = 0;
 var output = "";
 try {
 var parentTemplate = null;
-output += "<nav class=\"navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top\">\n    <div class=\"container-fluid px-3 px-lg-4\">\n\n        <!-- ЛОГО -->\n        <a class=\"navbar-brand fw-bold d-flex align-items-center gap-2 me-auto me-lg-0\" href=\"#/\">\n            <span class=\"d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3\"\n                  style=\"width:32px;height:32px;\">\n                <i class=\"bi bi-kanban\"></i>\n            </span>\n            <span>basic_template_mobile_desctop</span>\n        </a>\n\n        \n\n        <!-- СВОРАЧИВАЕМАЯ ЧАСТЬ -->\n        <div class=\"d-flex flex-column justify-content-center\" id=\"navMain\">\n\n            <!-- Правая группа -->\n            <div class=\"d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center\n                        gap-2 ms-auto mt-3 mt-lg-0\">\n\n                <!-- ==================== ГОСТЬ (скрыт) ==================== -->\n                <div class=\"d-none d-flex flex-row justify-content-end gap-2\" id=\"guestBlock\">\n                    <a class=\"btn btn-outline-secondary\" href=\"#/login\">\n                        <i class=\"bi bi-box-arrow-in-right me-1\"></i>Войти\n                    </a>\n                    <a class=\"btn btn-primary\" href=\"#/register\">\n                        <i class=\"bi bi-person-plus me-1\"></i>Регистрация\n                    </a>\n                </div>\n                <!-- ==================== АВТОРИЗОВАН (скрыт) ==================== -->\n                <div class=\"d-flex flex-row justify-content-end align-items-center gap-2\" id=\"userBlock\">\n\n                <div class=\"d-flex flex-row justify-content-end align-items-center gap-2\" id=\"userBlock\">\n\n                    <!-- Тема -->\n                    <button type=\"button\"\n                            class=\"btn btn-outline-secondary border-0\"\n                            id=\"themeToggle\" aria-label=\"Переключить тему\">\n                        <i class=\"bi bi-moon-stars\" id=\"themeIcon\"></i>\n                    </button>\n\n                    <!-- Уведомления -->\n                    <div class=\"dropdown position-static position-lg-relative\">\n                        <button class=\"btn btn-outline-secondary border-0 position-relative\"\n                                type=\"button\" data-bs-toggle=\"dropdown\" aria-label=\"Уведомления\">\n                            <i class=\"bi bi-bell\"></i>\n                            <span class=\"position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-danger\"\n                                style=\"font-size:.6rem;\">3</span>\n                        </button>\n\n                        <ul class=\"dropdown-menu dropdown-menu-end shadow rounded-4 p-2 dropdown-notifications\"\n                            style=\"width:min(320px, calc(100vw - 1rem));\">\n                            <li><h6 class=\"dropdown-header\">Уведомления</h6></li>\n                            <li>\n                                <a class=\"dropdown-item rounded-3 py-2\" href=\"#\">\n                                    <div class=\"d-flex gap-2\">\n                                        <i class=\"bi bi-person-plus text-primary mt-1\"></i>\n                                        <div>\n                                            <div class=\"small fw-semibold\">Иван пригласил вас в «Редизайн»</div>\n                                            <div class=\"text-body-secondary\" style=\"font-size:.75rem;\">5 минут назад</div>\n                                        </div>\n                                    </div>\n                                </a>\n                            </li>\n                            <li>\n                                <a class=\"dropdown-item rounded-3 py-2\" href=\"#\">\n                                    <div class=\"d-flex gap-2\">\n                                        <i class=\"bi bi-check-circle text-success mt-1\"></i>\n                                        <div>\n                                            <div class=\"small fw-semibold\">Задача «API авторизации» завершена</div>\n                                            <div class=\"text-body-secondary\" style=\"font-size:.75rem;\">20 минут назад</div>\n                                        </div>\n                                    </div>\n                                </a>\n                            </li>\n                            <li><hr class=\"dropdown-divider\"></li>\n                            <li><a class=\"dropdown-item text-center small text-primary\" href=\"#\">Все уведомления</a></li>\n                        </ul>\n                    </div>\n\n                    <!-- Профиль -->\n                    <div class=\"dropdown position-static position-lg-relative\">\n                        <button class=\"btn p-0 border-0 d-flex align-items-center gap-2\"\n                                type=\"button\" data-bs-toggle=\"dropdown\" aria-label=\"Профиль\">\n                            <span id=\"avatar\" class=\"d-inline-flex align-items-center justify-content-center\n                                        bg-primary bg-opacity-25 text-primary fw-bold rounded-circle\"\n                                style=\"width:36px;height:36px;\">АК</span>\n                        </button>\n\n                        <ul class=\"dropdown-menu dropdown-menu-end shadow rounded-4 p-2 dropdown-profile\"\n                            style=\"width:min(240px, calc(100vw - 1rem));\">\n                            <li class=\"px-3 py-2\">\n                                <div id=\"username\" class=\"fw-semibold text-truncate\">Алексей Кораблёв</div>\n                                <div id=\"email\" class=\"text-body-secondary small text-truncate\">alex@taskflow.io</div>\n                            </li>\n                            <li><hr class=\"dropdown-divider\"></li>\n                            <li><a id=\"account\" class=\"dropdown-item rounded-3\" href=\"#/profile\"><i class=\"bi bi-person me-2\"></i>Профиль</a></li>\n                            <li><a id=\"settings\" class=\"dropdown-item rounded-3\" href=\"#/settings\"><i class=\"bi bi-gear me-2\"></i>Настройки</a></li>\n                            <li><hr class=\"dropdown-divider\"></li>\n                            <li>\n                                <a class=\"dropdown-item rounded-3 text-danger\" href=\"#/login\" onclick=\"logout()\">\n                                    <i id=\"logout\" class=\"bi bi-box-arrow-right me-2\"></i>Выйти\n                                </a>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n\n            </div>\n        </div>\n    </div>\n</nav>";
+output += "<nav class=\"navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top\">\n    <div class=\"container-fluid px-3 px-lg-4\">\n\n        <!-- ЛОГО -->\n        <a class=\"navbar-brand fw-bold d-flex align-items-center gap-2 me-auto me-lg-0\" href=\"#/\">\n            <span class=\"d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3\"\n                  style=\"width:32px;height:32px;\">\n                <i class=\"bi bi-kanban\"></i>\n            </span>\n            <span>basic_template_mobile_desctop</span>\n        </a>\n\n        \n\n        <!-- СВОРАЧИВАЕМАЯ ЧАСТЬ -->\n        <div class=\"d-flex flex-column justify-content-center\" id=\"navMain\">\n\n            <!-- Правая группа -->\n            <div class=\"d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center\n                        gap-2 ms-auto mt-3 mt-lg-0\">\n\n                <!-- ==================== ГОСТЬ (скрыт) ==================== -->\n                <div class=\"d-none d-flex flex-row justify-content-end gap-2\" id=\"guestBlock\">\n                    <a class=\"btn btn-outline-secondary\" href=\"#/login\">\n                        <i class=\"bi bi-box-arrow-in-right me-1\"></i>Войти\n                    </a>\n                    <a class=\"btn btn-primary\" href=\"#/register\">\n                        <i class=\"bi bi-person-plus me-1\"></i>Регистрация\n                    </a>\n                </div>\n                <!-- ==================== АВТОРИЗОВАН (скрыт) ==================== -->\n                <div class=\"d-flex flex-row justify-content-end align-items-center gap-2\" id=\"userBlock\">\n\n                <div class=\"d-flex flex-row justify-content-end align-items-center gap-2\" id=\"userBlock\">\n\n                    <!-- Тема -->\n                    <button type=\"button\"\n                            class=\"btn btn-outline-secondary border-0\"\n                            id=\"themeToggle\" aria-label=\"Переключить тему\">\n                        <i class=\"bi bi-moon-stars\" id=\"themeIcon\"></i>\n                    </button>\n\n                   \n                    </div>\n\n                    <!-- Профиль -->\n                    <div class=\"dropdown position-static position-lg-relative\">\n                        <button class=\"btn p-0 border-0 d-flex align-items-center gap-2\"\n                                type=\"button\" data-bs-toggle=\"dropdown\" aria-label=\"Профиль\">\n                            <span id=\"avatar\" class=\"d-inline-flex align-items-center justify-content-center\n                                        bg-primary bg-opacity-25 text-primary fw-bold rounded-circle\"\n                                style=\"width:36px;height:36px;\">";
+output += runtime.suppressValue((runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"first_name")?runtime.memberLookup((runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"first_name")),0):runtime.memberLookup((runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"username")),0)), env.opts.autoescape);
+output += "</span>\n                        </button>\n\n                        <ul class=\"dropdown-menu dropdown-menu-end shadow rounded-4 p-2 dropdown-profile\"\n                            style=\"width:min(240px, calc(100vw - 1rem));\">\n                            <li class=\"px-3 py-2\">\n                                <div id=\"username\" class=\"fw-semibold text-truncate\">";
+output += runtime.suppressValue(runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"first_name") || runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"username"), env.opts.autoescape);
+output += "!</div>\n                                <div id=\"email\" class=\"text-body-secondary small text-truncate\">";
+output += runtime.suppressValue(runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"email"), env.opts.autoescape);
+output += "</div>\n                            </li>\n                            <li><hr class=\"dropdown-divider\"></li>\n                            <li><a id=\"account\" class=\"dropdown-item rounded-3\" href=\"#/profile\"><i class=\"bi bi-person me-2\"></i>Профиль</a></li>\n                            <li><a id=\"settings\" class=\"dropdown-item rounded-3\" href=\"#/settings\"><i class=\"bi bi-gear me-2\"></i>Настройки</a></li>\n                            <li><hr class=\"dropdown-divider\"></li>\n                            <li>\n                                <a class=\"dropdown-item rounded-3 text-danger\" href=\"#/login\" onclick=\"logout()\">\n                                    <i id=\"logout\" class=\"bi bi-box-arrow-right me-2\"></i>Выйти\n                                </a>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n\n            </div>\n        </div>\n    </div>\n</nav>";
 if(parentTemplate) {
 parentTemplate.rootRenderFunc(env, context, frame, runtime, cb);
 } else {

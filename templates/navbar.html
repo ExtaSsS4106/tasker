@@ -49,14 +49,14 @@
                                 type="button" data-bs-toggle="dropdown" aria-label="Профиль">
                             <span id="avatar" class="d-inline-flex align-items-center justify-content-center
                                         bg-primary bg-opacity-25 text-primary fw-bold rounded-circle"
-                                style="width:36px;height:36px;">АК</span>
+                                style="width:36px;height:36px;">{{ user.first_name[0] if user.first_name else user.username[0] }}</span>
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end shadow rounded-4 p-2 dropdown-profile"
                             style="width:min(240px, calc(100vw - 1rem));">
                             <li class="px-3 py-2">
-                                <div id="username" class="fw-semibold text-truncate">Алексей Кораблёв</div>
-                                <div id="email" class="text-body-secondary small text-truncate">alex@taskflow.io</div>
+                                <div id="username" class="fw-semibold text-truncate">{{ user.first_name or user.username }}!</div>
+                                <div id="email" class="text-body-secondary small text-truncate">{{ user.email }}</div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a id="account" class="dropdown-item rounded-3" href="#/profile"><i class="bi bi-person me-2"></i>Профиль</a></li>
