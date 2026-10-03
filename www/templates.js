@@ -332,6 +332,7 @@ output += "\n\n";
 (parentTemplate ? function(e, c, f, r, cb) { cb(""); } : context.getBlock("content"))(env, context, frame, runtime, function(t_5,t_4) {
 if(t_5) { cb(t_5); return; }
 output += t_4;
+output += "\n";
 if(parentTemplate) {
 parentTemplate.rootRenderFunc(env, context, frame, runtime, cb);
 } else {
@@ -348,13 +349,15 @@ var colno = 3;
 var output = "";
 try {
 var frame = frame.push(true);
-output += "\n<div class=\"row g-4\">\n\n    ";
-output += "\n    <div class=\"col-12\">\n        <div class=\"card border-0 shadow-sm\">\n            <div class=\"card-body p-4\">\n                <h1 class=\"h3 mb-1\">\n                    ";
+output += "\n<div class=\"row g-4\">\n    ";
+output += "\n    <div class=\"col-12\">\n        <div class=\"card border-0 shadow-sm\">\n            <div class=\"card-body p-4\">\n                <h1 class=\"h3 mb-1\">Привет, ";
 output += runtime.suppressValue(runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"first_name") || runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "user")),"username"), env.opts.autoescape);
-output += "\n                </h1>\n            </div>\n        </div>\n    </div>\n\n    ";
+output += "!</h1>\n                <p class=\"text-body-secondary mb-0\">Вот ваши задачи на сегодня.</p>\n            </div>\n        </div>\n    </div>\n\n    ";
 output += "\n    <div class=\"col-12\">\n        <div class=\"d-flex justify-content-between align-items-center mb-3\">\n            <h2 class=\"h5 mb-0\">Мои задачи</h2>\n            <button class=\"btn btn-primary btn-sm\" id=\"btnNewTask\">\n                <i class=\"bi bi-plus-lg me-1\"></i>Новая задача\n            </button>\n        </div>\n\n        ";
+output += "\n        <div class=\"d-flex flex-column flex-sm-row gap-2 mb-3\">\n            <input type=\"text\" id=\"taskSearch\" class=\"form-control form-control-sm\" placeholder=\"🔍 Поиск по названию...\">\n            <div class=\"btn-group btn-group-sm\" role=\"group\">\n                <button type=\"button\" class=\"btn btn-outline-primary active\" data-filter=\"all\">Все</button>\n                <button type=\"button\" class=\"btn btn-outline-primary\" data-filter=\"active\">Активные</button>\n                <button type=\"button\" class=\"btn btn-outline-primary\" data-filter=\"completed\">Выполненные</button>\n            </div>\n        </div>\n\n        ";
+output += "\n        ";
 if(runtime.contextOrFrameLookup(context, frame, "tasks") && runtime.memberLookup((runtime.contextOrFrameLookup(context, frame, "tasks")),"length")) {
-output += "\n            <div class=\"list-group shadow-sm\">\n                ";
+output += "\n        <div class=\"list-group shadow-sm\">\n            ";
 frame = frame.push();
 var t_8 = runtime.contextOrFrameLookup(context, frame, "tasks");
 if(t_8) {t_8 = runtime.fromIterator(t_8);
@@ -369,54 +372,55 @@ frame.set("loop.revindex0", t_7 - t_6 - 1);
 frame.set("loop.first", t_6 === 0);
 frame.set("loop.last", t_6 === t_7 - 1);
 frame.set("loop.length", t_7);
-output += "\n                    <div class=\"list-group-item d-flex align-items-start gap-3 py-3\"\n                         data-task-id=\"";
+output += "\n            <div class=\"list-group-item d-flex align-items-start gap-3 py-3\" data-task-id=\"";
 output += runtime.suppressValue(runtime.memberLookup((t_9),"id"), env.opts.autoescape);
-output += "\">\n\n                        <input class=\"form-check-input mt-1 task-toggle\" type=\"checkbox\"\n                               ";
+output += "\">\n                <input class=\"form-check-input mt-1 task-toggle\" type=\"checkbox\" \n                       ";
 if(runtime.memberLookup((t_9),"completed")) {
 output += "checked";
 ;
 }
-output += "\n                               aria-label=\"Отметить выполненной\">\n\n                        <div class=\"flex-grow-1\">\n                            <div class=\"fw-semibold ";
+output += " \n                       aria-label=\"Отметить выполненной\">\n                <div class=\"flex-grow-1\">\n                    <div class=\"fw-semibold ";
 if(runtime.memberLookup((t_9),"completed")) {
 output += "text-decoration-line-through text-body-secondary";
 ;
 }
-output += "\">\n                                ";
+output += "\">\n                        ";
 output += runtime.suppressValue(runtime.memberLookup((t_9),"title"), env.opts.autoescape);
-output += "\n                            </div>\n\n                            ";
+output += "\n                    </div>\n                    ";
 if(runtime.memberLookup((t_9),"description")) {
-output += "\n                                <div class=\"small text-body-secondary\">";
+output += "\n                    <div class=\"small text-body-secondary\">";
 output += runtime.suppressValue(runtime.memberLookup((t_9),"description"), env.opts.autoescape);
-output += "</div>\n                            ";
+output += "</div>\n                    ";
 ;
 }
-output += "\n\n                            ";
+output += "\n                    ";
 if(runtime.memberLookup((t_9),"due_date")) {
-output += "\n                                <div class=\"small text-body-secondary mt-1\">\n                                    <i class=\"bi bi-clock me-1\"></i>";
+output += "\n                    <div class=\"small text-body-secondary mt-1\">\n                        <i class=\"bi bi-clock me-1\"></i>";
 output += runtime.suppressValue(runtime.memberLookup((t_9),"due_date"), env.opts.autoescape);
-output += "\n                                </div>\n                            ";
+output += "\n                    </div>\n                    ";
 ;
 }
-output += "\n                        </div>\n\n                        ";
+output += "\n                </div>\n                ";
 if(runtime.memberLookup((t_9),"img")) {
-output += "\n                            <img src=\"";
+output += "\n                <img src=\"";
 output += runtime.suppressValue(runtime.memberLookup((t_9),"img"), env.opts.autoescape);
-output += "\" alt=\"\" class=\"rounded\"\n                                 style=\"width:48px;height:48px;object-fit:cover;\">\n                        ";
+output += "\" alt=\"\" class=\"rounded\" style=\"width:48px;height:48px;object-fit:cover;\">\n                ";
 ;
 }
-output += "\n\n                        <button class=\"btn btn-sm btn-outline-danger task-delete\" title=\"Удалить\">\n                            <i class=\"bi bi-trash\"></i>\n                        </button>\n                    </div>\n                ";
+output += "\n                <button class=\"btn btn-sm btn-outline-danger task-delete\" title=\"Удалить\">\n                    <i class=\"bi bi-trash\"></i>\n                </button>\n            </div>\n            ";
 ;
 }
 }
 frame = frame.pop();
-output += "\n            </div>\n        ";
+output += "\n        </div>\n        ";
 ;
 }
 else {
-output += "\n            <div class=\"card border-0 shadow-sm\">\n                <div class=\"card-body text-center text-body-secondary py-5\">\n                    <i class=\"bi bi-inbox display-6 d-block mb-3\"></i>\n                    Пока нет задач. Создай первую!\n                </div>\n            </div>\n        ";
+output += "\n        <div class=\"card border-0 shadow-sm\">\n            <div class=\"card-body text-center text-body-secondary py-5\">\n                <i class=\"bi bi-inbox display-6 d-block mb-3\"></i>\n                Задач пока нет. Создайте первую!\n            </div>\n        </div>\n        ";
 ;
 }
-output += "\n    </div>\n\n</div>\n";
+output += "\n    </div>\n</div>\n\n\n";
+output += "\n<div class=\"modal fade\" id=\"createTaskModal\" tabindex=\"-1\" aria-hidden=\"true\">\n    <div class=\"modal-dialog modal-dialog-centered\">\n        <div class=\"modal-content\">\n            <div class=\"modal-header\">\n                <h5 class=\"modal-title\">Новая задача</h5>\n                <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>\n            </div>\n            <form id=\"createTaskForm\">\n                <div class=\"modal-body\">\n                    <div class=\"mb-3\">\n                        <label class=\"form-label fw-semibold\">Название *</label>\n                        <input type=\"text\" class=\"form-control\" name=\"title\" required>\n                    </div>\n                    <div class=\"mb-3\">\n                        <label class=\"form-label\">Описание</label>\n                        <textarea class=\"form-control\" name=\"description\" rows=\"2\"></textarea>\n                    </div>\n                    <div class=\"mb-3\">\n                        <label class=\"form-label\">Срок выполнения</label>\n                        <input type=\"date\" class=\"form-control\" name=\"due_date\">\n                    </div>\n                    <div class=\"mb-3\">\n                        <label class=\"form-label\">Изображение</label>\n                        <input type=\"file\" class=\"form-control\" name=\"img\" accept=\"image/*\">\n                    </div>\n                </div>\n                <div class=\"modal-footer\">\n                    <button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Отмена</button>\n                    <button type=\"submit\" class=\"btn btn-primary\">Создать</button>\n                </div>\n            </form>\n        </div>\n    </div>\n</div>\n";
 cb(null, output);
 ;
 } catch (e) {

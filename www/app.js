@@ -244,6 +244,7 @@ function getFilteredTasks() {
 
 // ======================= Экспорт для inline-скриптов =======================
 window.taskflowAuth = { login, register, logout };
+window.logout = logout;
 window.taskflowTasks = {
     loadTasks,
     createTask,
@@ -315,7 +316,7 @@ function render() {
 }
 
 function attachTaskHandlers(root) {
-    // Чекбокс: выполнено / не выполнено
+    // 1. Чекбокс: выполнено / не выполнено
     root.querySelectorAll('.task-toggle').forEach((checkbox) => {
         checkbox.addEventListener('change', async (e) => {
             const item = e.target.closest('[data-task-id]');
@@ -329,19 +330,19 @@ function attachTaskHandlers(root) {
                 }
                 await loadTasks();
             } catch (error) {
-                e.target.checked = !e.target.checked;
+                e.target.checked = !e.target.checked; // Откат при ошибке
                 alert(error.message);
             }
         });
     });
 
-    // Удаление
+    // 2. Удаление задачи
     root.querySelectorAll('.task-delete').forEach((btn) => {
         btn.addEventListener('click', async (e) => {
             const item = e.target.closest('[data-task-id]');
             const taskId = item?.dataset.taskId;
             if (!taskId) return;
-            if (!confirm('Удалить задачу?')) return;
+            if (!confirm('Удалить эту задачу?')) return;
             try {
                 await deleteTask(taskId);
                 await loadTasks();
@@ -351,42 +352,73 @@ function attachTaskHandlers(root) {
         });
     });
 
-    // Новая задача
+    // 3. Открытие модального окна создания задачи
     const btnNew = root.querySelector('#btnNewTask');
     if (btnNew) {
-        btnNew.addEventListener('click', async () => {
-            const title = prompt('Название задачи:');
-            if (!title) return;
-            try {
-                await createTask({ title, description: '', completed: false });
-                await loadTasks();
-            } catch (error) {
-                alert(error.message);
+        btnNew.addEventListener('click', () => {
+            const modalEl = root.querySelector('#createTaskModal');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
             }
         });
     }
 
-    // Поиск
-    const search = root.querySelector('#taskSearch');
-    if (search) {
-        search.value = searchQuery;
-        search.addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            data.tasks = getFilteredTasks();
-            // перерисовываем только список, если хочешь — можно полный render()
-            render();
+    // 4. Обработка отправки формы создания задачи
+    const form = root.querySelector('#createTaskForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const fileInput = form.querySelector('input[name="img"]');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null;
+
+            try {
+                await window.taskflowTasks.createTaskWithImage(
+                    formData.get('title'),
+                    formData.get('description'),
+                    file,
+                    formData.get('due_date') || null
+                );
+                
+                // Закрываем модалку, очищаем форму и перезагружаем список
+                const modalEl = root.querySelector('#createTaskModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+                form.reset();
+                await loadTasks();
+            } catch (error) {
+                alert('Ошибка создания: ' + error.message);
+            }
         });
     }
 
-    // Фильтры
+    // 5. Поиск задач
+    const searchInput = root.querySelector('#taskSearch');
+    if (searchInput) {
+        searchInput.value = searchQuery;
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            data.tasks = getFilteredTasks();
+            render(); // Перерисовываем список
+        });
+    }
+
+    // 6. Фильтры (Все / Активные / Выполненные)
     root.querySelectorAll('[data-filter]').forEach((btn) => {
         btn.addEventListener('click', () => {
+            // Убираем активный класс у всех кнопок
+            root.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+            // Добавляем нажатой
+            btn.classList.add('active');
+            
             currentFilter = btn.dataset.filter;
             data.tasks = getFilteredTasks();
-            render();
+            render(); // Перерисовываем список
         });
     });
 }
+
 
 // ======================= Инициализация =======================
 async function initialize() {

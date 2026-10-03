@@ -2,19 +2,17 @@
 
 {% block content %}
 <div class="row g-4">
-
     {# Приветствие #}
     <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-                <h1 class="h3 mb-1">
-                    {{ user.first_name or user.username }}
-                </h1>
+                <h1 class="h3 mb-1">Привет, {{ user.first_name or user.username }}!</h1>
+                <p class="text-body-secondary mb-0">Вот ваши задачи на сегодня.</p>
             </div>
         </div>
     </div>
 
-    {# Заголовок списка + кнопка #}
+    {# Заголовок и кнопка #}
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="h5 mb-0">Мои задачи</h2>
@@ -23,52 +21,91 @@
             </button>
         </div>
 
+        {# ПОИСК И ФИЛЬТРЫ (Этого не хватало) #}
+        <div class="d-flex flex-column flex-sm-row gap-2 mb-3">
+            <input type="text" id="taskSearch" class="form-control form-control-sm" placeholder="🔍 Поиск по названию...">
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-primary active" data-filter="all">Все</button>
+                <button type="button" class="btn btn-outline-primary" data-filter="active">Активные</button>
+                <button type="button" class="btn btn-outline-primary" data-filter="completed">Выполненные</button>
+            </div>
+        </div>
+
+        {# СПИСОК ЗАДАЧ #}
         {% if tasks and tasks.length %}
-            <div class="list-group shadow-sm">
-                {% for task in tasks %}
-                    <div class="list-group-item d-flex align-items-start gap-3 py-3"
-                         data-task-id="{{ task.id }}">
-
-                        <input class="form-check-input mt-1 task-toggle" type="checkbox"
-                               {% if task.completed %}checked{% endif %}
-                               aria-label="Отметить выполненной">
-
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold {% if task.completed %}text-decoration-line-through text-body-secondary{% endif %}">
-                                {{ task.title }}
-                            </div>
-
-                            {% if task.description %}
-                                <div class="small text-body-secondary">{{ task.description }}</div>
-                            {% endif %}
-
-                            {% if task.due_date %}
-                                <div class="small text-body-secondary mt-1">
-                                    <i class="bi bi-clock me-1"></i>{{ task.due_date }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        {% if task.img %}
-                            <img src="{{ task.img }}" alt="" class="rounded"
-                                 style="width:48px;height:48px;object-fit:cover;">
-                        {% endif %}
-
-                        <button class="btn btn-sm btn-outline-danger task-delete" title="Удалить">
-                            <i class="bi bi-trash"></i>
-                        </button>
+        <div class="list-group shadow-sm">
+            {% for task in tasks %}
+            <div class="list-group-item d-flex align-items-start gap-3 py-3" data-task-id="{{ task.id }}">
+                <input class="form-check-input mt-1 task-toggle" type="checkbox" 
+                       {% if task.completed %}checked{% endif %} 
+                       aria-label="Отметить выполненной">
+                <div class="flex-grow-1">
+                    <div class="fw-semibold {% if task.completed %}text-decoration-line-through text-body-secondary{% endif %}">
+                        {{ task.title }}
                     </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center text-body-secondary py-5">
-                    <i class="bi bi-inbox display-6 d-block mb-3"></i>
-                    Пока нет задач. Создай первую!
+                    {% if task.description %}
+                    <div class="small text-body-secondary">{{ task.description }}</div>
+                    {% endif %}
+                    {% if task.due_date %}
+                    <div class="small text-body-secondary mt-1">
+                        <i class="bi bi-clock me-1"></i>{{ task.due_date }}
+                    </div>
+                    {% endif %}
                 </div>
+                {% if task.img %}
+                <img src="{{ task.img }}" alt="" class="rounded" style="width:48px;height:48px;object-fit:cover;">
+                {% endif %}
+                <button class="btn btn-sm btn-outline-danger task-delete" title="Удалить">
+                    <i class="bi bi-trash"></i>
+                </button>
             </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center text-body-secondary py-5">
+                <i class="bi bi-inbox display-6 d-block mb-3"></i>
+                Задач пока нет. Создайте первую!
+            </div>
+        </div>
         {% endif %}
     </div>
+</div>
 
+
+{# МОДАЛЬНОЕ ОКНО СОЗДАНИЯ ЗАДАЧИ (Добавлено в конец) #}
+<div class="modal fade" id="createTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Новая задача</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createTaskForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Название *</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea class="form-control" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Срок выполнения</label>
+                        <input type="date" class="form-control" name="due_date">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Изображение</label>
+                        <input type="file" class="form-control" name="img" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
