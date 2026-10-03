@@ -105,6 +105,46 @@
 
 
 /* ============================================================
+   Картинки задач
+   ============================================================ */
+
+.task-thumb {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: .5rem;
+    cursor: zoom-in;
+    background: var(--bs-tertiary-bg);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.task-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .25);
+}
+
+@media (max-width: 575.98px) {
+    .task-thumb {
+        width: 72px;
+        height: 72px;
+    }
+}
+
+.img-preview {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: .5rem;
+    background: var(--bs-tertiary-bg);
+    flex-shrink: 0;
+}
+
+/* Bootstrap не даёт утилиты min-width — нужна для длинных названий */
+.min-w-0 {
+    min-width: 0;
+}
+
+/* ============================================================
    Мелкие утилиты
    ============================================================ */
 

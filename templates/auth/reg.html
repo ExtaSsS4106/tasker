@@ -65,6 +65,20 @@
                 </div>
             </div>
 
+            <!-- Имя -->
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-sm-6">
+                    <label for="firstName" class="form-label">Имя</label>
+                    <input type="text" class="form-control" id="firstName"
+                           name="first_name" placeholder="John" maxlength="150">
+                </div>
+                <div class="col-12 col-sm-6">
+                    <label for="lastName" class="form-label">Фамилия</label>
+                    <input type="text" class="form-control" id="lastName"
+                           name="last_name" placeholder="Doe" maxlength="150">
+                </div>
+            </div>
+
             <!-- Пароль -->
             <div class="mb-3">
                 <label for="password" class="form-label">Пароль</label>
@@ -138,6 +152,9 @@
 {% block extra_js %}
 <script>
 (() => {
+    const form = document.getElementById('registerForm');
+    if (!form) return; // DOM ещё не готов (скрипт пересоздаётся при рендере)
+
     const nonFieldAlert = document.getElementById('nonFieldAlert');
     const nonFieldText  = document.getElementById('nonFieldText');
 
@@ -146,8 +163,6 @@
         nonFieldAlert.classList.remove('d-none');
         nonFieldAlert.classList.add('d-flex');
     }
-
-    const form = document.getElementById('registerForm');
 
     const fields = {
         username:  document.getElementById('username'),
@@ -299,6 +314,8 @@
             await window.taskflowAuth.register({
                 username: fields.username.value.trim(),
                 email: fields.email.value.trim(),
+                first_name: document.getElementById('firstName').value.trim(),
+                last_name: document.getElementById('lastName').value.trim(),
                 password: fields.password.value,
                 password2: fields.password2.value,
             });

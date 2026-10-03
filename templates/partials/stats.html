@@ -1,0 +1,50 @@
+{% if stats.total > 0 %}
+<div class="row g-3">
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-3">
+                <div class="fs-3 fw-bold text-primary">{{ stats.total }}</div>
+                <div class="small text-body-secondary">Всего задач</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-3">
+                <div class="fs-3 fw-bold text-info">{{ stats.active }}</div>
+                <div class="small text-body-secondary">Активные</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-3">
+                <div class="fs-3 fw-bold text-success">{{ stats.completed }}</div>
+                <div class="small text-body-secondary">Выполненные</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-3">
+                <div class="fs-3 fw-bold {% if stats.overdue > 0 %}text-danger{% else %}text-body-secondary{% endif %}">{{ stats.overdue }}</div>
+                <div class="small text-body-secondary">Просроченные</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-3">
+    <div class="card-body py-3">
+        <div class="d-flex justify-content-between small mb-2">
+            <span class="text-body-secondary">Прогресс выполнения</span>
+            <span class="fw-semibold">{{ stats.donePercent }}%</span>
+        </div>
+        <div class="progress" style="height:8px;">
+            <div class="progress-bar bg-success" role="progressbar"
+                 style="width:{{ stats.donePercent }}%;"
+                 aria-valuenow="{{ stats.donePercent }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+</div>
+{% endif %}

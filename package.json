@@ -6,7 +6,8 @@
     "build": "node build/precompile.js && vite build",
     "precompile": "node build/precompile.js",
     "start": "npm run build && electron .",
-    "dev": "node build/precompile.js && vite --host 127.0.0.1 --port 4173"
+    "dev": "node build/precompile.js && vite --host 127.0.0.1 --port 4173",
+    "test": "node build/smoke-templates.js"
   },
   "dependencies": {
     "@aparajita/capacitor-secure-storage": "^8.0.1",

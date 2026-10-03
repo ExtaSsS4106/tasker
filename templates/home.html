@@ -2,109 +2,229 @@
 
 {% block content %}
 <div class="row g-4">
+
     {# Приветствие #}
     <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-                <h1 class="h3 mb-1">Привет, {{ user.first_name or user.username }}!</h1>
-                <p class="text-body-secondary mb-0">Вот ваши задачи на сегодня.</p>
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                    <div>
+                        <h1 class="h3 mb-1">Привет, {{ user.first_name or user.username }}!</h1>
+                        <p class="text-body-secondary mb-0">Вот ваши задачи на сегодня.</p>
+                    </div>
+                    <button class="btn btn-primary flex-shrink-0" type="button" id="btnNewTask">
+                        <i class="bi bi-plus-lg me-1"></i>Новая задача
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    {# Заголовок и кнопка #}
+    {# Статистика #}
+    <div class="col-12" id="statsRow">
+        {% include "partials/stats.html" %}
+    </div>
+
+    {# Поиск, фильтры, сортировка, экспорт #}
     <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 mb-0">Мои задачи</h2>
-            <button class="btn btn-primary btn-sm" id="btnNewTask">
-                <i class="bi bi-plus-lg me-1"></i>Новая задача
-            </button>
-        </div>
-
-        {# ПОИСК И ФИЛЬТРЫ (Этого не хватало) #}
-        <div class="d-flex flex-column flex-sm-row gap-2 mb-3">
-            <input type="text" id="taskSearch" class="form-control form-control-sm" placeholder="🔍 Поиск по названию...">
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-outline-primary active" data-filter="all">Все</button>
-                <button type="button" class="btn btn-outline-primary" data-filter="active">Активные</button>
-                <button type="button" class="btn btn-outline-primary" data-filter="completed">Выполненные</button>
-            </div>
-        </div>
-
-        {# СПИСОК ЗАДАЧ #}
-        {% if tasks and tasks.length %}
-        <div class="list-group shadow-sm">
-            {% for task in tasks %}
-            <div class="list-group-item d-flex align-items-start gap-3 py-3" data-task-id="{{ task.id }}">
-                <input class="form-check-input mt-1 task-toggle" type="checkbox" 
-                       {% if task.completed %}checked{% endif %} 
-                       aria-label="Отметить выполненной">
-                <div class="flex-grow-1">
-                    <div class="fw-semibold {% if task.completed %}text-decoration-line-through text-body-secondary{% endif %}">
-                        {{ task.title }}
-                    </div>
-                    {% if task.description %}
-                    <div class="small text-body-secondary">{{ task.description }}</div>
-                    {% endif %}
-                    {% if task.due_date %}
-                    <div class="small text-body-secondary mt-1">
-                        <i class="bi bi-clock me-1"></i>{{ task.due_date }}
-                    </div>
-                    {% endif %}
-                </div>
-                {% if task.img %}
-                <img src="{{ task.img }}" alt="" class="rounded" style="width:48px;height:48px;object-fit:cover;">
-                {% endif %}
-                <button class="btn btn-sm btn-outline-danger task-delete" title="Удалить">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
         <div class="card border-0 shadow-sm">
-            <div class="card-body text-center text-body-secondary py-5">
-                <i class="bi bi-inbox display-6 d-block mb-3"></i>
-                Задач пока нет. Создайте первую!
+            <div class="card-body">
+                <div class="d-flex flex-column flex-xl-row gap-3 align-items-xl-center">
+
+                    <div class="input-group input-group-sm flex-grow-1" style="max-width:420px;">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" id="taskSearch"
+                               placeholder="Поиск по названию и описанию..."
+                               value="{{ searchQuery }}" autocomplete="off">
+                        <button class="btn btn-outline-secondary" type="button"
+                                id="btnClearSearch" title="Очистить поиск"
+                                {% if not hasSearch %}disabled{% endif %}>
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Фильтр задач">
+                        <button type="button" class="btn btn-outline-primary" data-filter="all">
+                            Все <span class="badge text-bg-secondary">{{ filters.all }}</span>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" data-filter="active">
+                            Активные <span class="badge text-bg-secondary">{{ filters.active }}</span>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" data-filter="completed">
+                            Выполненные <span class="badge text-bg-secondary">{{ filters.completed }}</span>
+                        </button>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap ms-xl-auto">
+                        <div class="input-group input-group-sm" style="max-width:240px;">
+                            <span class="input-group-text"><i class="bi bi-arrow-down-up"></i></span>
+                            <select class="form-select form-select-sm" id="taskSort" aria-label="Сортировка задач">
+                                {% for s in sorts %}
+                                <option value="{{ s.value }}" {% if s.value == currentSort %}selected{% endif %}>{{ s.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download me-1"></i>Экспорт
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <button class="dropdown-item" type="button" data-export="json">
+                                        <i class="bi bi-filetype-json me-2"></i>JSON
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item" type="button" data-export="csv">
+                                        <i class="bi bi-filetype-csv me-2"></i>CSV для Excel
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
-        {% endif %}
+    </div>
+
+    {# Список задач #}
+    <div class="col-12" id="taskListWrap">
+        {% include "partials/task_list.html" %}
     </div>
 </div>
 
-
-{# МОДАЛЬНОЕ ОКНО СОЗДАНИЯ ЗАДАЧИ (Добавлено в конец) #}
+{# ==================== Модалка создания ==================== #}
 <div class="modal fade" id="createTaskModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Новая задача</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="createTaskForm">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4">
+            <form id="createTaskForm" novalidate>
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fs-6 fw-semibold">
+                        <i class="bi bi-plus-lg me-2"></i>Новая задача
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Название *</label>
-                        <input type="text" class="form-control" name="title" required>
+                        <label class="form-label fw-semibold" for="createTitle">Название *</label>
+                        <input type="text" class="form-control" id="createTitle"
+                               name="title" maxlength="100" required
+                               placeholder="Что нужно сделать?">
+                        <div class="form-text">До 100 символов — ограничение модели Task на сервере.</div>
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Описание</label>
-                        <textarea class="form-control" name="description" rows="2"></textarea>
+                        <label class="form-label" for="createDesc">Описание *</label>
+                        <textarea class="form-control" id="createDesc" name="description"
+                                  rows="3" required
+                                  placeholder="Детали задачи..."></textarea>
+                        <div class="form-text">Обязательное поле: на сервере это TextField без blank.</div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Срок выполнения</label>
-                        <input type="date" class="form-control" name="due_date">
+
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label" for="createDue">Срок выполнения</label>
+                            <input type="date" class="form-control" id="createDue" name="due_date">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label" for="createImg">Изображение</label>
+                            <input type="file" class="form-control" id="createImg"
+                                   name="img" accept="image/*">
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Изображение</label>
-                        <input type="file" class="form-control" name="img" accept="image/*">
+
+                    <div class="d-flex align-items-center gap-3 mt-3">
+                        <img id="createImgPreview" class="img-preview d-none" alt="Предпросмотр">
+                        <span class="small text-body-secondary" id="createImgHint"
+                              data-idle="Изображение не выбрано">Изображение не выбрано</span>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <button type="submit" class="btn btn-primary">Создать</button>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <span class="spinner-border spinner-border-sm me-2 d-none" data-form-spinner></span>
+                        <span data-form-label data-idle="Создать">Создать</span>
+                    </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+{# ==================== Модалка редактирования ==================== #}
+<div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4">
+            <form id="editTaskForm" novalidate>
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fs-6 fw-semibold">
+                        <i class="bi bi-pencil me-2"></i>Редактировать задачу
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="editTitle">Название *</label>
+                        <input type="text" class="form-control" id="editTitle"
+                               name="title" maxlength="100" required>
+                        <div class="form-text">До 100 символов — ограничение модели Task на сервере.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="editDesc">Описание *</label>
+                        <textarea class="form-control" id="editDesc" name="description"
+                                  rows="3" required></textarea>
+                        <div class="form-text">Обязательное поле: на сервере это TextField без blank.</div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label" for="editDue">Срок выполнения</label>
+                            <input type="date" class="form-control" id="editDue" name="due_date">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label" for="editImg">Заменить изображение</label>
+                            <input type="file" class="form-control" id="editImg"
+                                   name="img" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mt-3">
+                        <img id="editImgPreview" class="img-preview d-none" alt="Предпросмотр">
+                        <span class="small text-body-secondary" id="editImgHint"
+                              data-idle="Изображение не выбрано">Изображение не выбрано</span>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <span class="spinner-border spinner-border-sm me-2 d-none" data-form-spinner></span>
+                        <span data-form-label data-idle="Сохранить">Сохранить</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# ==================== Лайтбокс изображения ==================== #}
+<div class="modal fade" id="taskImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fs-6 text-white text-truncate" id="taskImageCaption"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="taskImageBig" class="img-fluid rounded-4" alt="">
+            </div>
         </div>
     </div>
 </div>

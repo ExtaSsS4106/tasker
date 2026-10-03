@@ -45,11 +45,13 @@ function probeApi(host) {
         const request = http.get({
             hostname: host,
             port: 8080,
-            path: '/api/ping/',
+            // На бэке нет /api/ping/ — GET /api/ отвечает 404 + {"error": "Not found"}.
+            // Любого HTTP-ответа достаточно, чтобы считать сервер найденным.
+            path: '/api/',
             timeout: 700,
         }, (response) => {
             response.resume();
-            resolve(response.statusCode >= 200 && response.statusCode < 400
+            resolve(response.statusCode >= 200 && response.statusCode < 500
                 ? `http://${host}:8080/api`
                 : null);
         });
@@ -61,11 +63,12 @@ function probeApi(host) {
 
 async function findApiBase() {
     const candidates = getCandidateIPs();
+    const deadline = Date.now() + 4000; // не блокируем запуск дольше 4 секунд
     let nextIndex = 0;
     let found = null;
 
     const workers = Array.from({ length: 48 }, async () => {
-        while (!found && nextIndex < candidates.length) {
+        while (!found && nextIndex < candidates.length && Date.now() < deadline) {
             found = await probeApi(candidates[nextIndex++]) || found;
         }
     });
@@ -116,6 +119,10 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false,
+            // Десктоп-клиент ходит по file:// на Django в локальной сети.
+            // Отключаем SOP/CORS, чтобы API работал без cors-headers на сервере.
+            // Граница renderer/node (contextIsolation) при этом сохраняется.
+            webSecurity: false,
         },
     });
 

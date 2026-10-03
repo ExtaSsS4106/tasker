@@ -94,7 +94,9 @@
 {% block extra_js %}
 <script>
 (() => {
-    const form          = document.getElementById('loginForm');
+    const form = document.getElementById('loginForm');
+    if (!form) return; // DOM ещё не готов (скрипт пересоздаётся при рендере)
+
     const username      = document.getElementById('username');
     const password      = document.getElementById('password');
     const usernameError = document.getElementById('usernameError');

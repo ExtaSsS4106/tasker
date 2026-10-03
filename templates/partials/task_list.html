@@ -1,0 +1,143 @@
+{% if loading %}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body text-center py-5">
+        <div class="spinner-border text-primary mb-3" role="status" aria-hidden="true"></div>
+        <div class="text-body-secondary">Загружаем задачи…</div>
+    </div>
+</div>
+
+{% elif tasks.length %}
+
+    {% if selectedCount > 0 %}
+    {# Панель массовых действий #}
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body py-2 d-flex flex-wrap align-items-center gap-2">
+            <span class="badge text-bg-primary rounded-pill">Выбрано: {{ selectedCount }}</span>
+
+            {% if busy %}
+            <span class="spinner-border spinner-border-sm text-body-secondary" role="status" aria-hidden="true"></span>
+            <span class="small text-body-secondary">Обрабатываем…</span>
+            {% else %}
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-success" data-bulk="complete">
+                    <i class="bi bi-check2-all me-1"></i>Выполнить
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-bulk="uncomplete">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>В работу
+                </button>
+                <button type="button" class="btn btn-outline-danger" data-bulk="delete">
+                    <i class="bi bi-trash me-1"></i>Удалить
+                </button>
+            </div>
+            <button type="button" class="btn btn-link btn-sm text-body-secondary ms-auto" data-bulk="clear">
+                Снять выбор
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="list-group shadow-sm">
+
+        {# Шапка: выбор всех + счётчик #}
+        <div class="list-group-item d-flex align-items-center gap-3 py-2 bg-body-tertiary">
+            <div class="form-check ms-1">
+                <input class="form-check-input" type="checkbox" id="bulkSelectAll"
+                       {% if allSelected %}checked{% endif %} {% if busy %}disabled{% endif %}>
+                <label class="form-check-label visually-hidden" for="bulkSelectAll">Выбрать все видимые задачи</label>
+            </div>
+            <span class="small text-body-secondary">Отметить выполненной</span>
+            <span class="ms-auto small text-body-secondary">
+                {{ tasks.length }}{% if tasks.length != filters.all %} из {{ filters.all }}{% endif %}
+            </span>
+        </div>
+
+        {% for task in tasks %}
+        <div class="list-group-item d-flex align-items-start gap-3 py-3"
+             data-task-id="{{ task.id }}" data-task-title="{{ task.title }}">
+
+            {# выбор для массовых действий #}
+            <div class="form-check mt-1">
+                <input class="form-check-input task-select" type="checkbox"
+                       {% if task.selected %}checked{% endif %} {% if busy %}disabled{% endif %}
+                       aria-label="Выбрать задачу «{{ task.title }}»">
+            </div>
+
+            {# выполнено / не выполнено #}
+            <div class="form-check mt-1">
+                <input class="form-check-input task-toggle" type="checkbox"
+                       {% if task.completed %}checked{% endif %} {% if busy %}disabled{% endif %}
+                       aria-label="Отметить задачу «{{ task.title }}» выполненной">
+            </div>
+
+            <div class="flex-grow-1 min-w-0">
+                <div class="fw-semibold {% if task.completed %}text-decoration-line-through text-body-secondary{% endif %}">
+                    {{ task.title }}
+                </div>
+
+                {% if task.description %}
+                <div class="small text-body-secondary mt-1 text-wrap">{{ task.description }}</div>
+                {% endif %}
+
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    {% if task.dueLabel %}
+                    <span class="badge rounded-pill
+                        {% if task.overdue %}text-bg-danger
+                        {% elif task.dueToday %}text-bg-warning
+                        {% else %}text-bg-secondary{% endif %}">
+                        <i class="bi bi-clock me-1"></i>{{ task.dueLabel }}
+                        {%- if task.overdue %} · просрочено{% elif task.dueToday %} · сегодня{% endif %}
+                    </span>
+                    {% endif %}
+
+                    {% if task.completed %}
+                    <span class="badge rounded-pill text-bg-success">
+                        <i class="bi bi-check2-all me-1"></i>Выполнено
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if task.imgUrl %}
+            <img src="{{ task.imgUrl }}" alt="{{ task.title }}"
+                 class="task-thumb flex-shrink-0"
+                 data-caption="{{ task.title }}" loading="lazy"
+                 title="Нажмите, чтобы увеличить">
+            {% endif %}
+
+            <div class="btn-group btn-group-sm flex-shrink-0">
+                <button type="button" class="btn btn-outline-primary task-edit"
+                        title="Редактировать" {% if busy %}disabled{% endif %}>
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-outline-danger task-delete"
+                        title="Удалить" {% if busy %}disabled{% endif %}>
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% else %}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body text-center text-body-secondary py-5">
+        {% if hasSearch or currentFilter != 'all' %}
+            <i class="bi bi-search display-6 d-block mb-3"></i>
+            <p class="mb-3">Ничего не найдено. Попробуйте изменить поиск или фильтр.</p>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnResetView">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Сбросить поиск и фильтры
+            </button>
+        {% else %}
+            <i class="bi bi-inbox display-6 d-block mb-3"></i>
+            <p class="mb-3">Задач пока нет. Создайте первую!</p>
+            <button type="button" class="btn btn-primary btn-sm" id="btnNewTaskEmpty">
+                <i class="bi bi-plus-lg me-1"></i>Новая задача
+            </button>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}

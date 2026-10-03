@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="ru" data-bs-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ title }} — {{ appName }}</title>
-</head>
-<body>
-    {% include "navbar.html" %}
-    <main class="container">
-        {% block content %}{% endblock %}
-    </main>
-</body>
-</html>
+{% include "navbar.html" %}
+<main class="container py-4">
+    {% block content %}{% endblock %}
+</main>
